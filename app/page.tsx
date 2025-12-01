@@ -30,6 +30,7 @@ export default function Home() {
   const [exchangeRateLoading, setExchangeRateLoading] = useState<boolean>(false);
   const [calendarView, setCalendarView] = useState<CalendarView>('month');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedFilterDate, setSelectedFilterDate] = useState<Date | null>(null);
   const [showCategoryManager, setShowCategoryManager] = useState<boolean>(false);
 
   // 초기 데이터 로드
@@ -299,6 +300,38 @@ export default function Home() {
     return dayTransactions.reduce((sum, t) => {
       return sum + (t.type === 'income' ? Number(t.amount) : -Number(t.amount));
     }, 0);
+  };
+
+  const isDateSelected = (date: Date) => {
+    if (!selectedFilterDate) return false;
+    return (
+      date.getFullYear() === selectedFilterDate.getFullYear() &&
+      date.getMonth() === selectedFilterDate.getMonth() &&
+      date.getDate() === selectedFilterDate.getDate()
+    );
+  };
+
+  const handleDateClick = (date: Date) => {
+    // 같은 날짜를 다시 클릭하면 필터 해제
+    if (isDateSelected(date)) {
+      setSelectedFilterDate(null);
+    } else {
+      setSelectedFilterDate(new Date(date));
+    }
+  };
+
+  const getFilteredTransactions = () => {
+    if (!selectedFilterDate) {
+      return transactions;
+    }
+    return transactions.filter(t => {
+      const tDate = new Date(t.created_at);
+      return (
+        tDate.getFullYear() === selectedFilterDate.getFullYear() &&
+        tDate.getMonth() === selectedFilterDate.getMonth() &&
+        tDate.getDate() === selectedFilterDate.getDate()
+      );
+    });
   };
 
   const deleteTransaction = async (id: number) => {
@@ -612,13 +645,17 @@ export default function Home() {
                       day.toDateString() === new Date().toDateString();
                     const dayTransactions = getTransactionsForDate(day);
                     const dayTotal = getTotalForDate(day);
+                    const isSelected = isDateSelected(day);
 
                     return (
                       <div
                         key={idx}
-                        className={`bg-white p-2 min-h-[80px] border-b border-r border-gray-200 ${
+                        onClick={() => handleDateClick(day)}
+                        className={`bg-white p-2 min-h-[80px] border-b border-r border-gray-200 cursor-pointer transition-colors hover:bg-gray-50 ${
                           !isCurrentMonth ? 'opacity-40' : ''
-                        } ${isToday ? 'bg-blue-50 border-blue-300' : ''}`}
+                        } ${isToday ? 'bg-blue-50 border-blue-300' : ''} ${
+                          isSelected ? 'bg-blue-200 border-blue-500 border-2' : ''
+                        }`}
                       >
                         <div className="text-sm font-medium mb-1">
                           {day.getDate()}
@@ -683,12 +720,16 @@ export default function Home() {
                     const isToday = day.toDateString() === new Date().toDateString();
                     const dayTransactions = getTransactionsForDate(day);
                     const dayTotal = getTotalForDate(day);
+                    const isSelected = isDateSelected(day);
 
                     return (
                       <div
                         key={idx}
-                        className={`bg-white p-3 min-h-[120px] ${
+                        onClick={() => handleDateClick(day)}
+                        className={`bg-white p-3 min-h-[120px] cursor-pointer transition-colors hover:bg-gray-50 ${
                           isToday ? 'bg-blue-50 border-2 border-blue-300' : ''
+                        } ${
+                          isSelected ? 'bg-blue-200 border-2 border-blue-500' : ''
                         }`}
                       >
                         <div className="text-sm font-medium mb-2">
@@ -741,15 +782,35 @@ export default function Home() {
           </div>
 
           {/* 거래 목록 */}
+          <div className="flex justify-between items-center mb-4">
+            {selectedFilterDate && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">
+                  {selectedFilterDate.getFullYear()}년 {selectedFilterDate.getMonth() + 1}월 {selectedFilterDate.getDate()}일 내역
+                </span>
+                <button
+                  onClick={() => setSelectedFilterDate(null)}
+                  className="text-xs text-blue-600 hover:text-blue-700 underline"
+                >
+                  전체 보기
+                </button>
+              </div>
+            )}
+            {!selectedFilterDate && (
+              <span className="text-sm text-gray-600">전체 내역</span>
+            )}
+          </div>
           {loading ? (
             <p className="text-center text-gray-500 py-8">로딩 중...</p>
-          ) : transactions.length === 0 ? (
+          ) : getFilteredTransactions().length === 0 ? (
             <p className="text-center text-gray-500 py-8">
-              기록된 내역이 없습니다.
+              {selectedFilterDate 
+                ? '선택한 날짜에 기록된 내역이 없습니다.'
+                : '기록된 내역이 없습니다.'}
             </p>
           ) : (
             <div className="space-y-3">
-              {transactions.map((transaction) => (
+              {getFilteredTransactions().map((transaction) => (
                 <div
                   key={transaction.id}
                   className={`p-4 rounded-lg border-l-4 ${
