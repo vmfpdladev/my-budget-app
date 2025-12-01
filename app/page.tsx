@@ -6,42 +6,7 @@ import dynamic from 'next/dynamic';
 
 // recharts를 동적으로 import (SSR 방지)
 const MonthlyComparisonChart = dynamic(
-  () => {
-    try {
-      return import('recharts').then((mod) => {
-        const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = mod;
-        return ({ currentMonth, previousMonth, formatCurrency }: { 
-          currentMonth: { income: number; expense: number }; 
-          previousMonth: { income: number; expense: number };
-          formatCurrency: (value: number) => string;
-        }) => (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={[
-              { name: '수입', 이번달: currentMonth.income, 전월: previousMonth.income },
-              { name: '지출', 이번달: currentMonth.expense, 전월: previousMonth.expense },
-            ]}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip formatter={(value: number) => formatCurrency(value)} />
-              <Legend />
-              <Bar dataKey="이번달" fill="#3b82f6" />
-              <Bar dataKey="전월" fill="#94a3b8" />
-            </BarChart>
-          </ResponsiveContainer>
-        );
-      });
-    } catch (e) {
-      // recharts가 없을 경우 대체 컴포넌트
-      return () => (
-        <div className="text-center py-8 text-gray-500">
-          그래프를 표시하려면 recharts 라이브러리가 필요합니다.
-          <br />
-          <code className="text-sm">npm install recharts</code>를 실행해주세요.
-        </div>
-      );
-    }
-  },
+  () => import('./components/MonthlyComparisonChart'),
   { ssr: false }
 );
 
