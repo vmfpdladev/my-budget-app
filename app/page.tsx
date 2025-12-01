@@ -328,18 +328,18 @@ export default function Home() {
   const { income, expense, balance } = calculateSummary();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-white py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">
-            가계부
+          <h1 className="text-3xl font-bold text-purple-500">
+            나의 가계부
           </h1>
           <div className="flex items-center gap-3">
             {exchangeRateLoading && (
               <span className="text-xs text-gray-500">환율 로딩 중...</span>
             )}
             {exchangeRate && (
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-600">
                 1 USD = {exchangeRate.toLocaleString('ko-KR')} KRW
               </span>
             )}
@@ -348,8 +348,8 @@ export default function Home() {
                 onClick={() => setCurrency('KRW')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   currency === 'KRW'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'bg-purple-300 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-purple-50'
                 }`}
               >
                 원화 (₩)
@@ -358,8 +358,8 @@ export default function Home() {
                 onClick={() => setCurrency('USD')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   currency === 'USD'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'bg-purple-300 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-purple-50'
                 }`}
               >
                 달러 ($)
@@ -370,23 +370,23 @@ export default function Home() {
 
         {/* 요약 카드 섹션 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
-            <h2 className="text-sm font-medium text-gray-600 mb-2">총 수입</h2>
-            <p className="text-2xl font-bold text-blue-600">
+          <div className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg shadow-md p-6 border-l-4 border-blue-300">
+            <h2 className="text-sm font-medium text-blue-600 mb-2">총 수입</h2>
+            <p className="text-2xl font-bold text-blue-500">
               {formatCurrency(income)}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
-            <h2 className="text-sm font-medium text-gray-600 mb-2">총 지출</h2>
-            <p className="text-2xl font-bold text-red-600">
+          <div className="bg-gradient-to-br from-pink-100 to-pink-50 rounded-lg shadow-md p-6 border-l-4 border-pink-300">
+            <h2 className="text-sm font-medium text-pink-600 mb-2">총 지출</h2>
+            <p className="text-2xl font-bold text-pink-500">
               {formatCurrency(expense)}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-gray-500">
-            <h2 className="text-sm font-medium text-gray-600 mb-2">잔액</h2>
+          <div className="bg-gradient-to-br from-purple-100 to-purple-50 rounded-lg shadow-md p-6 border-l-4 border-purple-300">
+            <h2 className="text-sm font-medium text-purple-600 mb-2">잔액</h2>
             <p
               className={`text-2xl font-bold ${
-                balance >= 0 ? 'text-blue-600' : 'text-red-600'
+                balance >= 0 ? 'text-blue-500' : 'text-pink-500'
               }`}
             >
               {formatCurrency(balance)}
@@ -395,14 +395,14 @@ export default function Home() {
         </div>
 
         {/* 기록 입력 폼 */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-gray-200">
+          <h2 className="text-xl font-semibold mb-4 text-purple-500">
             수입/지출 기록하기
           </h2>
           <form onSubmit={addTransaction} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                금액 <span className="text-red-500">*</span> <span className="text-xs text-gray-500">(10원 단위)</span>
+                금액 <span className="text-pink-400">*</span> <span className="text-xs text-gray-500">(10원 단위)</span>
               </label>
               <input
                 type="number"
@@ -410,7 +410,7 @@ export default function Home() {
                 onChange={handleAmountChange}
                 onBlur={handleAmountBlur}
                 onKeyDown={handleAmountKeyDown}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
                 placeholder="금액을 입력하세요"
                 required
                 min="0"
@@ -429,7 +429,7 @@ export default function Home() {
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
                 placeholder="예: 점심값, 월급"
               />
             </div>
@@ -442,26 +442,26 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setShowCategoryManager(!showCategoryManager)}
-                  className="text-xs text-blue-600 hover:text-blue-700 underline"
+                  className="text-xs text-purple-500 hover:text-purple-600 underline"
                 >
                   {showCategoryManager ? '닫기' : '관리'}
                 </button>
               </div>
               {showCategoryManager && (
-                <div className="mb-3 p-3 bg-gray-50 rounded-md border border-gray-200">
+                <div className="mb-3 p-3 bg-purple-50 rounded-md border border-purple-200">
                   <div className="flex gap-2 mb-2">
                     <input
                       type="text"
                       value={newCategory}
                       onChange={(e) => setNewCategory(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && addCategory()}
-                      className="flex-1 px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300"
                       placeholder="새 카테고리 이름"
                     />
                     <button
                       type="button"
                       onClick={addCategory}
-                      className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                      className="px-3 py-1 text-sm bg-purple-300 text-white rounded-md hover:bg-purple-400 shadow-sm"
                     >
                       추가
                     </button>
@@ -472,12 +472,12 @@ export default function Home() {
                         key={cat}
                         className="flex items-center gap-1 px-2 py-1 bg-white rounded-md border border-gray-300"
                       >
-                        <span className="text-sm">{cat}</span>
+                        <span className="text-sm text-gray-700">{cat}</span>
                         {categories.length > 1 && (
                           <button
                             type="button"
                             onClick={() => deleteCategory(cat)}
-                            className="text-red-500 hover:text-red-700 text-xs"
+                            className="text-pink-400 hover:text-pink-600 text-xs"
                             title="삭제"
                           >
                             ×
@@ -491,7 +491,7 @@ export default function Home() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-300 text-gray-700"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
@@ -512,9 +512,9 @@ export default function Home() {
                     value="income"
                     checked={type === 'income'}
                     onChange={(e) => setType(e.target.value as TransactionType)}
-                    className="mr-2"
+                    className="mr-2 accent-blue-400"
                   />
-                  <span className="text-blue-600 font-medium">수입</span>
+                  <span className="text-blue-500 font-medium">수입</span>
                 </label>
                 <label className="flex items-center">
                   <input
@@ -522,16 +522,16 @@ export default function Home() {
                     value="expense"
                     checked={type === 'expense'}
                     onChange={(e) => setType(e.target.value as TransactionType)}
-                    className="mr-2"
+                    className="mr-2 accent-pink-400"
                   />
-                  <span className="text-red-600 font-medium">지출</span>
+                  <span className="text-pink-500 font-medium">지출</span>
                 </label>
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium"
+              className="w-full bg-gradient-to-r from-purple-300 to-pink-300 text-white py-2 px-4 rounded-md hover:from-purple-400 hover:to-pink-400 transition-colors font-medium shadow-sm"
             >
               추가하기
             </button>
@@ -539,9 +539,9 @@ export default function Home() {
         </div>
 
         {/* 기록 목록 */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-800">
+            <h2 className="text-xl font-semibold text-purple-500">
               기록 목록
             </h2>
             <div className="flex gap-2">
@@ -549,8 +549,8 @@ export default function Home() {
                 onClick={() => setCalendarView('month')}
                 className={`px-3 py-1 text-sm rounded-md transition-colors ${
                   calendarView === 'month'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-purple-300 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-700 hover:bg-purple-50'
                 }`}
               >
                 월별
@@ -559,8 +559,8 @@ export default function Home() {
                 onClick={() => setCalendarView('week')}
                 className={`px-3 py-1 text-sm rounded-md transition-colors ${
                   calendarView === 'week'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-purple-300 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-700 hover:bg-purple-50'
                 }`}
               >
                 주별
@@ -572,18 +572,18 @@ export default function Home() {
           <div className="mb-6">
             {calendarView === 'month' ? (
               <div className="border border-gray-200 rounded-lg overflow-hidden">
-                <div className="bg-gray-50 p-4 flex justify-between items-center">
+                <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-4 flex justify-between items-center">
                   <button
                     onClick={() => {
                       const newDate = new Date(selectedDate);
                       newDate.setMonth(newDate.getMonth() - 1);
                       setSelectedDate(newDate);
                     }}
-                    className="px-3 py-1 text-gray-600 hover:bg-gray-200 rounded"
+                    className="px-3 py-1 text-purple-600 hover:bg-purple-200 rounded transition-colors"
                   >
                     ←
                   </button>
-                  <h3 className="text-lg font-semibold">
+                  <h3 className="text-lg font-semibold text-purple-600">
                     {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월
                   </h3>
                   <button
@@ -592,7 +592,7 @@ export default function Home() {
                       newDate.setMonth(newDate.getMonth() + 1);
                       setSelectedDate(newDate);
                     }}
-                    className="px-3 py-1 text-gray-600 hover:bg-gray-200 rounded"
+                    className="px-3 py-1 text-purple-600 hover:bg-purple-200 rounded transition-colors"
                   >
                     →
                   </button>
@@ -620,24 +620,24 @@ export default function Home() {
                           !isCurrentMonth ? 'opacity-40' : ''
                         } ${isToday ? 'bg-blue-50 border-blue-300' : ''}`}
                       >
-                        <div className="text-sm font-medium mb-1">
+                        <div className="text-sm font-medium mb-1 text-gray-700">
                           {day.getDate()}
                         </div>
                         {dayTransactions.length > 0 && (
                           <div className="space-y-1">
                             <div className="text-xs">
-                              <span className="text-blue-600">
+                              <span className="text-blue-500">
                                 +{dayTransactions.filter(t => t.type === 'income').length}
                               </span>
                               {' '}
-                              <span className="text-red-600">
+                              <span className="text-pink-500">
                                 -{dayTransactions.filter(t => t.type === 'expense').length}
                               </span>
                             </div>
                             {dayTotal !== 0 && (
                               <div
                                 className={`text-xs font-semibold ${
-                                  dayTotal >= 0 ? 'text-blue-600' : 'text-red-600'
+                                  dayTotal >= 0 ? 'text-blue-500' : 'text-pink-500'
                                 }`}
                               >
                                 {formatCurrency(Math.abs(dayTotal))}
@@ -652,18 +652,18 @@ export default function Home() {
               </div>
             ) : (
               <div className="border border-gray-200 rounded-lg overflow-hidden">
-                <div className="bg-gray-50 p-4 flex justify-between items-center">
+                <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-4 flex justify-between items-center">
                   <button
                     onClick={() => {
                       const newDate = new Date(selectedDate);
                       newDate.setDate(newDate.getDate() - 7);
                       setSelectedDate(newDate);
                     }}
-                    className="px-3 py-1 text-gray-600 hover:bg-gray-200 rounded"
+                    className="px-3 py-1 text-purple-600 hover:bg-purple-200 rounded transition-colors"
                   >
                     ← 이전 주
                   </button>
-                  <h3 className="text-lg font-semibold">
+                  <h3 className="text-lg font-semibold text-purple-600">
                     {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월{' '}
                     {Math.floor((selectedDate.getDate() - selectedDate.getDay()) / 7) + 1}주차
                   </h3>
@@ -673,7 +673,7 @@ export default function Home() {
                       newDate.setDate(newDate.getDate() + 7);
                       setSelectedDate(newDate);
                     }}
-                    className="px-3 py-1 text-gray-600 hover:bg-gray-200 rounded"
+                    className="px-3 py-1 text-purple-600 hover:bg-purple-200 rounded transition-colors"
                   >
                     다음 주 →
                   </button>
@@ -691,7 +691,7 @@ export default function Home() {
                           isToday ? 'bg-blue-50 border-2 border-blue-300' : ''
                         }`}
                       >
-                        <div className="text-sm font-medium mb-2">
+                        <div className="text-sm font-medium mb-2 text-gray-700">
                           {day.getMonth() + 1}/{day.getDate()}
                           <span className="text-xs text-gray-500 ml-1">
                             {['일', '월', '화', '수', '목', '금', '토'][day.getDay()]}
@@ -704,8 +704,8 @@ export default function Home() {
                                 key={t.id}
                                 className={`text-xs p-1 rounded ${
                                   t.type === 'income'
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : 'bg-red-100 text-red-800'
+                                    ? 'bg-blue-100 text-blue-600'
+                                    : 'bg-pink-100 text-pink-600'
                                 }`}
                               >
                                 <div className="font-semibold">
@@ -721,8 +721,8 @@ export default function Home() {
                             )}
                             {dayTotal !== 0 && (
                               <div
-                                className={`text-xs font-bold mt-1 pt-1 border-t ${
-                                  dayTotal >= 0 ? 'text-blue-600' : 'text-red-600'
+                                className={`text-xs font-bold mt-1 pt-1 border-t border-gray-200 ${
+                                  dayTotal >= 0 ? 'text-blue-500' : 'text-pink-500'
                                 }`}
                               >
                                 합계: {formatCurrency(Math.abs(dayTotal))}
@@ -754,8 +754,8 @@ export default function Home() {
                   key={transaction.id}
                   className={`p-4 rounded-lg border-l-4 ${
                     transaction.type === 'income'
-                      ? 'bg-blue-50 border-blue-500'
-                      : 'bg-red-50 border-red-500'
+                      ? 'bg-gradient-to-r from-blue-50 to-blue-100/50 border-blue-300'
+                      : 'bg-gradient-to-r from-pink-50 to-pink-100/50 border-pink-300'
                   }`}
                 >
                   <div className="flex justify-between items-start">
@@ -764,8 +764,8 @@ export default function Home() {
                         <span
                           className={`text-lg font-bold ${
                             transaction.type === 'income'
-                              ? 'text-blue-600'
-                              : 'text-red-600'
+                              ? 'text-blue-500'
+                              : 'text-pink-500'
                           }`}
                         >
                           {formatCurrency(Number(transaction.amount))}
@@ -773,8 +773,8 @@ export default function Home() {
                         <span
                           className={`text-xs px-2 py-1 rounded ${
                             transaction.type === 'income'
-                              ? 'bg-blue-200 text-blue-800'
-                              : 'bg-red-200 text-red-800'
+                              ? 'bg-blue-200 text-blue-600'
+                              : 'bg-pink-200 text-pink-600'
                           }`}
                         >
                           {transaction.type === 'income' ? '수입' : '지출'}
@@ -802,7 +802,7 @@ export default function Home() {
                     </div>
                     <button
                       onClick={() => deleteTransaction(transaction.id)}
-                      className="ml-4 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
+                      className="ml-4 px-3 py-1 bg-pink-300 text-white rounded hover:bg-pink-400 transition-colors text-sm shadow-sm"
                     >
                       삭제
                     </button>
