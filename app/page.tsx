@@ -2,6 +2,48 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import dynamic from 'next/dynamic';
+
+// recharts를 동적으로 import (SSR 방지)
+const MonthlyComparisonChart = dynamic(
+  () => {
+    try {
+      return import('recharts').then((mod) => {
+        const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = mod;
+        return ({ currentMonth, previousMonth, formatCurrency }: { 
+          currentMonth: { income: number; expense: number }; 
+          previousMonth: { income: number; expense: number };
+          formatCurrency: (value: number) => string;
+        }) => (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={[
+              { name: '수입', 이번달: currentMonth.income, 전월: previousMonth.income },
+              { name: '지출', 이번달: currentMonth.expense, 전월: previousMonth.expense },
+            ]}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip formatter={(value: number) => formatCurrency(value)} />
+              <Legend />
+              <Bar dataKey="이번달" fill="#3b82f6" />
+              <Bar dataKey="전월" fill="#94a3b8" />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+      });
+    } catch (e) {
+      // recharts가 없을 경우 대체 컴포넌트
+      return () => (
+        <div className="text-center py-8 text-gray-500">
+          그래프를 표시하려면 recharts 라이브러리가 필요합니다.
+          <br />
+          <code className="text-sm">npm install recharts</code>를 실행해주세요.
+        </div>
+      );
+    }
+  },
+  { ssr: false }
+);
 
 type TransactionType = 'income' | 'expense';
 type Currency = 'KRW' | 'USD';
@@ -32,6 +74,7 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedFilterDate, setSelectedFilterDate] = useState<Date | null>(null);
   const [showCategoryManager, setShowCategoryManager] = useState<boolean>(false);
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
 
   // 초기 데이터 로드
   useEffect(() => {
@@ -136,15 +179,34 @@ export default function Home() {
     }
   };
 
-  const calculateSummary = () => {
-    const income = transactions
+  // 월별 거래 필터링
+  const getTransactionsForMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    return transactions.filter((t) => {
+      const tDate = new Date(t.created_at);
+      return tDate.getFullYear() === year && tDate.getMonth() === month;
+    });
+  };
+
+  // 월별 요약 계산
+  const calculateMonthlySummary = (date: Date) => {
+    const monthTransactions = getTransactionsForMonth(date);
+    const income = monthTransactions
       .filter((t) => t.type === 'income')
       .reduce((sum, t) => sum + Number(t.amount), 0);
-    const expense = transactions
+    const expense = monthTransactions
       .filter((t) => t.type === 'expense')
       .reduce((sum, t) => sum + Number(t.amount), 0);
     const balance = income - expense;
     return { income, expense, balance };
+  };
+
+  // 전월 날짜 계산
+  const getPreviousMonth = (date: Date) => {
+    const prev = new Date(date);
+    prev.setMonth(prev.getMonth() - 1);
+    return prev;
   };
 
   const addTransaction = async (e: React.FormEvent) => {
@@ -358,7 +420,8 @@ export default function Home() {
     }
   };
 
-  const { income, expense, balance } = calculateSummary();
+  const { income, expense, balance } = calculateMonthlySummary(selectedMonth);
+  const previousMonthSummary = calculateMonthlySummary(getPreviousMonth(selectedMonth));
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -401,22 +464,92 @@ export default function Home() {
           </div>
         </div>
 
+        {/* 월 선택 섹션 */}
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-gray-700">조회 월:</label>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  const newDate = new Date(selectedMonth);
+                  newDate.setMonth(newDate.getMonth() - 1);
+                  setSelectedMonth(newDate);
+                }}
+                className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded"
+              >
+                ←
+              </button>
+              <input
+                type="month"
+                value={`${selectedMonth.getFullYear()}-${String(selectedMonth.getMonth() + 1).padStart(2, '0')}`}
+                onChange={(e) => {
+                  const [year, month] = e.target.value.split('-').map(Number);
+                  setSelectedMonth(new Date(year, month - 1));
+                }}
+                className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={() => {
+                  const newDate = new Date(selectedMonth);
+                  newDate.setMonth(newDate.getMonth() + 1);
+                  setSelectedMonth(newDate);
+                }}
+                className="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded"
+              >
+                →
+              </button>
+              <button
+                onClick={() => setSelectedMonth(new Date())}
+                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                이번 달
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* 요약 카드 섹션 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
-            <h2 className="text-sm font-medium text-gray-600 mb-2">총 수입</h2>
+            <h2 className="text-sm font-medium text-gray-600 mb-2">
+              총 수입 ({selectedMonth.getFullYear()}년 {selectedMonth.getMonth() + 1}월)
+            </h2>
             <p className="text-2xl font-bold text-blue-600">
               {formatCurrency(income)}
             </p>
+            {previousMonthSummary.income > 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                전월 대비: {income >= previousMonthSummary.income ? '+' : ''}
+                {formatCurrency(income - previousMonthSummary.income)} (
+                {previousMonthSummary.income > 0
+                  ? ((income / previousMonthSummary.income - 1) * 100).toFixed(1)
+                  : '0'}
+                %)
+              </p>
+            )}
           </div>
           <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
-            <h2 className="text-sm font-medium text-gray-600 mb-2">총 지출</h2>
+            <h2 className="text-sm font-medium text-gray-600 mb-2">
+              총 지출 ({selectedMonth.getFullYear()}년 {selectedMonth.getMonth() + 1}월)
+            </h2>
             <p className="text-2xl font-bold text-red-600">
               {formatCurrency(expense)}
             </p>
+            {previousMonthSummary.expense > 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                전월 대비: {expense >= previousMonthSummary.expense ? '+' : ''}
+                {formatCurrency(expense - previousMonthSummary.expense)} (
+                {previousMonthSummary.expense > 0
+                  ? ((expense / previousMonthSummary.expense - 1) * 100).toFixed(1)
+                  : '0'}
+                %)
+              </p>
+            )}
           </div>
           <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-gray-500">
-            <h2 className="text-sm font-medium text-gray-600 mb-2">잔액</h2>
+            <h2 className="text-sm font-medium text-gray-600 mb-2">
+              잔액 ({selectedMonth.getFullYear()}년 {selectedMonth.getMonth() + 1}월)
+            </h2>
             <p
               className={`text-2xl font-bold ${
                 balance >= 0 ? 'text-blue-600' : 'text-red-600'
@@ -424,6 +557,28 @@ export default function Home() {
             >
               {formatCurrency(balance)}
             </p>
+            {previousMonthSummary.balance !== 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                전월 대비: {balance >= previousMonthSummary.balance ? '+' : ''}
+                {formatCurrency(balance - previousMonthSummary.balance)}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* 전월 비교 통계 그래프 */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">
+            전월 대비 통계 ({selectedMonth.getFullYear()}년 {selectedMonth.getMonth() + 1}월 vs {getPreviousMonth(selectedMonth).getFullYear()}년 {getPreviousMonth(selectedMonth).getMonth() + 1}월)
+          </h2>
+          <div className="w-full">
+            {typeof window !== 'undefined' && (
+              <MonthlyComparisonChart
+                currentMonth={{ income, expense }}
+                previousMonth={previousMonthSummary}
+                formatCurrency={formatCurrency}
+              />
+            )}
           </div>
         </div>
 
