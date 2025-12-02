@@ -10,6 +10,11 @@ const MonthlyComparisonChart = dynamic(
   { ssr: false }
 );
 
+const AIAnalysis = dynamic(
+  () => import('./components/AIAnalysis'),
+  { ssr: false }
+);
+
 type TransactionType = 'income' | 'expense';
 type Currency = 'KRW' | 'USD';
 type CalendarView = 'month' | 'week';
@@ -45,7 +50,7 @@ export default function Home() {
   useEffect(() => {
     loadTransactions();
     loadExchangeRate();
-    
+
     // 환율을 주기적으로 업데이트 (1시간마다)
     const interval = setInterval(() => {
       loadExchangeRate();
@@ -60,7 +65,7 @@ export default function Home() {
     if (savedCurrency && (savedCurrency === 'KRW' || savedCurrency === 'USD')) {
       setCurrency(savedCurrency);
     }
-    
+
     // localStorage에서 카테고리 불러오기
     const savedCategories = localStorage.getItem('categories');
     if (savedCategories) {
@@ -279,7 +284,7 @@ export default function Home() {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
-    
+
     const days = [];
     // 이전 달의 마지막 날들
     const prevMonth = new Date(year, month, 0);
@@ -407,21 +412,19 @@ export default function Home() {
             <div className="flex items-center gap-2 bg-white rounded-lg shadow-sm border border-gray-200 p-1">
               <button
                 onClick={() => setCurrency('KRW')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  currency === 'KRW'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${currency === 'KRW'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+                  }`}
               >
                 원화 (₩)
               </button>
               <button
                 onClick={() => setCurrency('USD')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  currency === 'USD'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${currency === 'USD'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+                  }`}
               >
                 달러 ($)
               </button>
@@ -516,9 +519,8 @@ export default function Home() {
               잔액 ({selectedMonth.getFullYear()}년 {selectedMonth.getMonth() + 1}월)
             </h2>
             <p
-              className={`text-2xl font-bold ${
-                balance >= 0 ? 'text-blue-600' : 'text-red-600'
-              }`}
+              className={`text-2xl font-bold ${balance >= 0 ? 'text-blue-600' : 'text-red-600'
+                }`}
             >
               {formatCurrency(balance)}
             </p>
@@ -545,6 +547,15 @@ export default function Home() {
               />
             )}
           </div>
+        </div>
+
+        {/* AI 소비 분석 */}
+        <div className="w-full">
+          <AIAnalysis
+            transactions={getTransactionsForMonth(selectedMonth)}
+            year={selectedMonth.getFullYear()}
+            month={selectedMonth.getMonth() + 1}
+          />
         </div>
 
         {/* 기록 입력 폼 */}
@@ -700,21 +711,19 @@ export default function Home() {
             <div className="flex gap-2">
               <button
                 onClick={() => setCalendarView('month')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                  calendarView === 'month'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${calendarView === 'month'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
               >
                 월별
               </button>
               <button
                 onClick={() => setCalendarView('week')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                  calendarView === 'week'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${calendarView === 'week'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
               >
                 주별
               </button>
@@ -771,11 +780,9 @@ export default function Home() {
                       <div
                         key={idx}
                         onClick={() => handleDateClick(day)}
-                        className={`bg-white p-2 min-h-[80px] border-b border-r border-gray-200 cursor-pointer transition-colors hover:bg-gray-50 ${
-                          !isCurrentMonth ? 'opacity-40' : ''
-                        } ${isToday ? 'bg-blue-50 border-blue-300' : ''} ${
-                          isSelected ? 'bg-blue-200 border-blue-500 border-2' : ''
-                        }`}
+                        className={`bg-white p-2 min-h-[80px] border-b border-r border-gray-200 cursor-pointer transition-colors hover:bg-gray-50 ${!isCurrentMonth ? 'opacity-40' : ''
+                          } ${isToday ? 'bg-blue-50 border-blue-300' : ''} ${isSelected ? 'bg-blue-200 border-blue-500 border-2' : ''
+                          }`}
                       >
                         <div className="text-sm font-medium mb-1">
                           {day.getDate()}
@@ -793,9 +800,8 @@ export default function Home() {
                             </div>
                             {dayTotal !== 0 && (
                               <div
-                                className={`text-xs font-semibold ${
-                                  dayTotal >= 0 ? 'text-blue-600' : 'text-red-600'
-                                }`}
+                                className={`text-xs font-semibold ${dayTotal >= 0 ? 'text-blue-600' : 'text-red-600'
+                                  }`}
                               >
                                 {formatCurrency(Math.abs(dayTotal))}
                               </div>
@@ -846,11 +852,9 @@ export default function Home() {
                       <div
                         key={idx}
                         onClick={() => handleDateClick(day)}
-                        className={`bg-white p-3 min-h-[120px] cursor-pointer transition-colors hover:bg-gray-50 ${
-                          isToday ? 'bg-blue-50 border-2 border-blue-300' : ''
-                        } ${
-                          isSelected ? 'bg-blue-200 border-2 border-blue-500' : ''
-                        }`}
+                        className={`bg-white p-3 min-h-[120px] cursor-pointer transition-colors hover:bg-gray-50 ${isToday ? 'bg-blue-50 border-2 border-blue-300' : ''
+                          } ${isSelected ? 'bg-blue-200 border-2 border-blue-500' : ''
+                          }`}
                       >
                         <div className="text-sm font-medium mb-2">
                           {day.getMonth() + 1}/{day.getDate()}
@@ -863,11 +867,10 @@ export default function Home() {
                             {dayTransactions.slice(0, 3).map((t) => (
                               <div
                                 key={t.id}
-                                className={`text-xs p-1 rounded ${
-                                  t.type === 'income'
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : 'bg-red-100 text-red-800'
-                                }`}
+                                className={`text-xs p-1 rounded ${t.type === 'income'
+                                  ? 'bg-blue-100 text-blue-800'
+                                  : 'bg-red-100 text-red-800'
+                                  }`}
                               >
                                 <div className="font-semibold">
                                   {formatCurrency(Number(t.amount))}
@@ -882,9 +885,8 @@ export default function Home() {
                             )}
                             {dayTotal !== 0 && (
                               <div
-                                className={`text-xs font-bold mt-1 pt-1 border-t ${
-                                  dayTotal >= 0 ? 'text-blue-600' : 'text-red-600'
-                                }`}
+                                className={`text-xs font-bold mt-1 pt-1 border-t ${dayTotal >= 0 ? 'text-blue-600' : 'text-red-600'
+                                  }`}
                               >
                                 합계: {formatCurrency(Math.abs(dayTotal))}
                               </div>
@@ -924,7 +926,7 @@ export default function Home() {
             <p className="text-center text-gray-500 py-8">로딩 중...</p>
           ) : getFilteredTransactions().length === 0 ? (
             <p className="text-center text-gray-500 py-8">
-              {selectedFilterDate 
+              {selectedFilterDate
                 ? '선택한 날짜에 기록된 내역이 없습니다.'
                 : '기록된 내역이 없습니다.'}
             </p>
@@ -933,30 +935,27 @@ export default function Home() {
               {getFilteredTransactions().map((transaction) => (
                 <div
                   key={transaction.id}
-                  className={`p-4 rounded-lg border-l-4 ${
-                    transaction.type === 'income'
-                      ? 'bg-blue-50 border-blue-500'
-                      : 'bg-red-50 border-red-500'
-                  }`}
+                  className={`p-4 rounded-lg border-l-4 ${transaction.type === 'income'
+                    ? 'bg-blue-50 border-blue-500'
+                    : 'bg-red-50 border-red-500'
+                    }`}
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span
-                          className={`text-lg font-bold ${
-                            transaction.type === 'income'
-                              ? 'text-blue-600'
-                              : 'text-red-600'
-                          }`}
+                          className={`text-lg font-bold ${transaction.type === 'income'
+                            ? 'text-blue-600'
+                            : 'text-red-600'
+                            }`}
                         >
                           {formatCurrency(Number(transaction.amount))}
                         </span>
                         <span
-                          className={`text-xs px-2 py-1 rounded ${
-                            transaction.type === 'income'
-                              ? 'bg-blue-200 text-blue-800'
-                              : 'bg-red-200 text-red-800'
-                          }`}
+                          className={`text-xs px-2 py-1 rounded ${transaction.type === 'income'
+                            ? 'bg-blue-200 text-blue-800'
+                            : 'bg-red-200 text-red-800'
+                            }`}
                         >
                           {transaction.type === 'income' ? '수입' : '지출'}
                         </span>
